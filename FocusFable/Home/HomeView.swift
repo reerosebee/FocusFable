@@ -10,9 +10,11 @@ import SwiftData
 
 struct HomeView: View {
     @Query private var progressList: [UserProgress]
-    @State private var taskInput    = ""
-    @State private var showSession  = false
+    @State private var vm           = HomeViewModel()
     @State private var selectedTask: SubTask?
+
+    let focusOptions = [10, 15, 20, 25, 30, 45]
+    let breakOptions = [5, 10, 15]
 
     var user: UserProgress? { progressList.first }
 
@@ -33,28 +35,84 @@ struct HomeView: View {
                         Text("What do you need to study?")
                             .font(.headline)
                         TextField("e.g. study for bio test, finish math hw...",
-                                  text: $taskInput,
+                                  text: $vm.taskInput,
                                   axis: .vertical)
                             .lineLimit(2...4)
                             .textFieldStyle(.roundedBorder)
 
                         Button {
-                            // TODO: hook up TaskBreakdownService here
+                            Task {
+                                await vm.breakdownTask(
+                                    sessionMinutes: user?.focusDurationMinutes ?? Constants.Timer.defaultFocusMinutes
+                                )
+                            }
                         } label: {
-                            Label("Break it down", systemImage: "sparkles")
-                                .frame(maxWidth: .infinity)
+                            HStack {
+                                if vm.isLoading {
+                                    ProgressView().tint(.white)
+                                } else {
+                                    Image(systemName: "sparkles")
+                                }
+                                Text(vm.isLoading ? "Thinking..." : "Break it down")
+                            }
+                            .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(PrimaryButtonStyle())
-                        .disabled(taskInput.trimmingCharacters(in: .whitespaces).count < 3)
+                        .disabled(!vm.canBreakdown || vm.isLoading)
                     }
                     .padding()
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
 
-                    // MARK: Quick-start (before AI is wired up)
+                    // MARK: AI breakdown results
+                    breakdownResultView
+
+                    // MARK: Timer pickers
+                    if let user {
+                        VStack(spacing: 0) {
+                            Picker("Focus", selection: Binding(
+                                get: { user.focusDurationMinutes },
+                                set: { user.focusDurationMinutes = $0 }
+                            )) {
+                                ForEach(focusOptions, id: \.self) { min in
+                                    Text("\(min) min").tag(min)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+
+                            Text("Focus duration")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.top, 4)
+
+                            Divider().padding(.vertical, 10)
+
+                            Picker("Break", selection: Binding(
+                                get: { user.breakDurationMinutes },
+                                set: { user.breakDurationMinutes = $0 }
+                            )) {
+                                ForEach(breakOptions, id: \.self) { min in
+                                    Text("\(min) min").tag(min)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+
+                            Text("Break duration")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.top, 4)
+                        }
+                        .padding()
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                    }
+
+                    // MARK: Quick-start
                     Button {
-                        selectedTask = SubTask(title: taskInput.isEmpty ? "Study session" : taskInput,
-                                               durationMinutes: user?.focusDurationMinutes ?? 25)
-                        showSession  = true
+                        selectedTask = SubTask(
+                            title: vm.taskInput.isEmpty ? "Study session" : vm.taskInput,
+                            durationMinutes: user?.focusDurationMinutes ?? 25
+                        )
                     } label: {
                         Label("Start Session Now", systemImage: "play.fill")
                             .frame(maxWidth: .infinity)
@@ -66,17 +124,118 @@ struct HomeView: View {
                 .padding()
             }
             .navigationTitle("Focus Fable")
-            .fullScreenCover(isPresented: $showSession) {
-                if let task = selectedTask {
-                    SessionView(taskLabel: task.title,
-                                durationMinutes: task.durationMinutes)
+            .toolbar {
+                if case .loaded = vm.breakdownState {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Clear") { vm.reset() }
+                    }
                 }
             }
+            .fullScreenCover(item: $selectedTask) { task in
+                SessionView(taskLabel: task.title,
+                            durationMinutes: task.durationMinutes)
+            }
+        }
+    }
+
+    // MARK: - Breakdown result view
+
+    @ViewBuilder
+    private var breakdownResultView: some View {
+        switch vm.breakdownState {
+
+        case .idle:
+            EmptyView()
+
+        case .loading:
+            HStack(spacing: 10) {
+                ProgressView()
+                Text("Planning your session...")
+                    .foregroundStyle(.secondary)
+                    .font(.subheadline)
+            }
+            .padding()
+
+        case .loaded(let tasks):
+            SubTaskListView(tasks: tasks) { tappedTask in
+                selectedTask = tappedTask
+            }
+
+        case .unsupported:
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Apple Intelligence not available", systemImage: "exclamationmark.circle")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(.orange)
+                Text("Requires iOS 18.1+ on iPhone 15 Pro or iPhone 16. Start a session manually below.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
+            .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))
+
+        case .error(let message):
+            Label(message, systemImage: "exclamationmark.triangle")
+                .font(.subheadline)
+                .foregroundStyle(.red)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.red.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
         }
     }
 }
 
-// MARK: - Badges (defined here for now, can move to Components/ later)
+// MARK: - SubTaskListView
+
+struct SubTaskListView: View {
+    let tasks: [SubTask]
+    let onSelect: (SubTask) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Your study plan")
+                .font(.headline)
+
+            ForEach(Array(tasks.enumerated()), id: \.element.id) { index, task in
+                Button { onSelect(task) } label: {
+                    HStack(spacing: 14) {
+                        Text("\(index + 1)")
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .frame(width: 28, height: 28)
+                            .background(Color.appAccent, in: Circle())
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(task.title)
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(.primary)
+                                .multilineTextAlignment(.leading)
+                            Text("\(task.durationMinutes) min · tap to start")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "play.circle.fill")
+                            .foregroundStyle(Color.appAccent)
+                            .font(.title2)
+                    }
+                    .padding()
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+                }
+                .buttonStyle(.plain)
+            }
+
+            Text("Tap a step to begin that session")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 4)
+        }
+    }
+}
+
+// MARK: - Badges
 
 struct PointsBadge: View {
     let points: Int
