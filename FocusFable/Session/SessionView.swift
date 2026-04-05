@@ -81,7 +81,7 @@ struct SessionView: View {
                       systemImage: vm.isPaused ? "play.fill" : "pause.fill")
                     .frame(maxWidth: .infinity)
             }
-            .buttonStyle(PrimaryButtonStyle())
+            .buttonStyle(GreenButtonStyle())
 
             // End early
             Button("End Session") {
@@ -105,7 +105,7 @@ struct SessionView: View {
                 saveSession(record)
                 dismiss()
             }
-            .buttonStyle(PrimaryButtonStyle())
+            .buttonStyle(GreenButtonStyle())
         }
     }
 

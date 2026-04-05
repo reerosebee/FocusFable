@@ -28,7 +28,8 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gearshape.fill")
                 }
         }
-        .tint(.appAccent)
+        .tint(Color.brandGreen)
+        .background(Color.brandMint)
     }
 }
 

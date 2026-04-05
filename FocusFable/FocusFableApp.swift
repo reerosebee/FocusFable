@@ -10,9 +10,25 @@ import SwiftData
 
 @main
 struct FocusFableApp: App {
+    @State private var showSplash = true
+ 
     var body: some Scene {
         WindowGroup {
-            RootView()
+            ZStack {
+                if showSplash {
+                    SplashView()
+                        .transition(.opacity)
+                } else {
+                    RootView()
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.6), value: showSplash)
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    showSplash = false
+                }
+            }
         }
         .modelContainer(for: [
             UserProgress.self,
