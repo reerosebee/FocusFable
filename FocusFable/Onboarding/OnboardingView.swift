@@ -2,31 +2,30 @@
 //  OnboardingView.swift
 //  FocusFable
 //
-//  Created by Riya  on 3/30/26.
-//
 
 import SwiftUI
 import SwiftData
- 
+
 struct OnboardingView: View {
     @Environment(\.modelContext) private var context
- 
+
     @State private var step          = 0
     @State private var heroName      = ""
-    @State private var selectedGenre = StoryGenre.fantasy
- 
+    @State private var selectedGenre = StoryGenre.mystery  // default to the only available one
+
     var body: some View {
         ZStack {
             Color.brandMint.ignoresSafeArea()
- 
+
             TabView(selection: $step) {
- 
-                // Welcome Screen
+
+                // MARK: Screen 1 — Welcome
                 VStack(spacing: 28) {
                     Spacer()
-                    Image(systemName: "book.pages.fill")
-                        .font(.system(size: 60))
-                        .foregroundStyle(Color.brandGreen)
+                    Image("FocusFableIcon")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 100, height: 100)
                     Text("FocusFable")
                         .font(.brandTitle)
                         .foregroundStyle(Color.brandGreen)
@@ -37,12 +36,11 @@ struct OnboardingView: View {
                     Spacer()
                     Button("Get Started") { withAnimation { step = 1 } }
                         .buttonStyle(GreenButtonStyle())
-                        .padding(.bottom)
                 }
                 .padding(32)
                 .tag(0)
- 
-                // Hero name Screen
+
+                // MARK: Screen 2 — Hero name
                 VStack(spacing: 24) {
                     Spacer()
                     Text("What's your hero's name?")
@@ -55,33 +53,38 @@ struct OnboardingView: View {
                     Button("Next") { withAnimation { step = 2 } }
                         .buttonStyle(GreenButtonStyle())
                         .disabled(heroName.trimmingCharacters(in: .whitespaces).isEmpty)
-                        .padding(.bottom)
                 }
                 .padding(32)
                 .tag(1)
- 
-                // Genre Screen
+
+                // MARK: Screen 3 — Genre
                 VStack(spacing: 16) {
                     Spacer()
                     Text("Choose your story world")
                         .font(.brandHeading)
                         .foregroundStyle(Color.brandGreen)
+
                     ForEach(StoryGenre.allCases, id: \.self) { genre in
-                        GenreCard(genre: genre, isSelected: selectedGenre == genre) {
-                            selectedGenre = genre
-                        }
+                        GenreCard(
+                            genre: genre,
+                            isSelected: selectedGenre == genre,
+                            onTap: {
+                                if genre.isAvailable {
+                                    selectedGenre = genre
+                                }
+                            }
+                        )
                     }
+
                     Spacer()
                     Button("Start My Journey") {
                         let progress = UserProgress(heroName: heroName, genre: selectedGenre)
                         context.insert(progress)
                     }
                     .buttonStyle(GreenButtonStyle())
-                    .padding(.bottom)
                 }
                 .padding(32)
                 .tag(2)
-                
             }
             .tabViewStyle(.page(indexDisplayMode: .always))
             .onAppear {
@@ -91,47 +94,73 @@ struct OnboardingView: View {
         }
     }
 }
- 
+
 // MARK: - Genre Card
+
 struct GenreCard: View {
     let genre: StoryGenre
     let isSelected: Bool
     let onTap: () -> Void
- 
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
-                Text(genre.emoji).font(.title)
+                Text(genre.emoji)
+                    .font(.title)
+                    .opacity(genre.isAvailable ? 1 : 0.4)
+
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(genre.rawValue)
-                        .font(.brandBody.bold())
-                        .foregroundStyle(Color.brandGreen)
+                    HStack(spacing: 8) {
+                        Text(genre.rawValue)
+                            .font(.brandBody.bold())
+                            .foregroundStyle(genre.isAvailable ? Color.brandGreen : Color.brandGreen.opacity(0.35))
+                        if !genre.isAvailable {
+                            Text("Soon")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(Color.brandGreen.opacity(0.5))
+                                .padding(.horizontal, 7)
+                                .padding(.vertical, 3)
+                                .background(Color.brandGreenSoft, in: Capsule())
+                        }
+                    }
                     Text(genre.description)
                         .font(.brandCaption)
-                        .foregroundStyle(Color.brandGreen.opacity(0.6))
+                        .foregroundStyle(Color.brandGreen.opacity(genre.isAvailable ? 0.6 : 0.3))
                 }
+
                 Spacer()
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.brandGreen)
+
+                if genre.isAvailable {
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(Color.brandGreen)
+                    }
+                } else {
+                    Image(systemName: "lock.fill")
+                        .font(.caption)
+                        .foregroundStyle(Color.brandGreen.opacity(0.3))
                 }
             }
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 14)
-                    .fill(isSelected ? Color.brandGreenSoft : Color.white.opacity(0.6))
+                    .fill(genre.isAvailable
+                          ? (isSelected ? Color.brandGreenSoft : Color.white.opacity(0.6))
+                          : Color.white.opacity(0.25))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
-                            .stroke(isSelected ? Color.brandGreen : Color.clear, lineWidth: 1.5)
+                            .stroke(isSelected && genre.isAvailable ? Color.brandGreen : Color.clear, lineWidth: 1.5)
                     )
             )
         }
         .buttonStyle(.plain)
+        .disabled(!genre.isAvailable)
         .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
 }
- 
-// MARK: - Shared button style
+
+// MARK: - Shared styles
+
 struct GreenButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -146,8 +175,7 @@ struct GreenButtonStyle: ButtonStyle {
             )
     }
 }
- 
-// MARK: - Shared text field style
+
 struct GreenTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
@@ -160,6 +188,4 @@ struct GreenTextFieldStyle: TextFieldStyle {
     }
 }
 
-#Preview {
-    OnboardingView()
-}
+typealias PrimaryButtonStyle = GreenButtonStyle

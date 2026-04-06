@@ -12,6 +12,9 @@ struct HomeView: View {
     @Query private var progressList: [UserProgress]
     @State private var vm           = HomeViewModel()
     @State private var selectedTask: SubTask?
+    #if DEBUG
+    @State private var showDebug = false
+    #endif
  
     let focusOptions = [10, 15, 20, 25, 30, 45]
     let breakOptions = [5, 10, 15]
@@ -138,11 +141,28 @@ struct HomeView: View {
                             .foregroundStyle(Color.brandGreen)
                     }
                 }
+                
+                //DEBUG REMOVE LATER
+                #if DEBUG
+                   ToolbarItem(placement: .topBarLeading) {
+                       Button {
+                           showDebug = true
+                       } label: {
+                           Image(systemName: "wrench.fill")
+                               .foregroundStyle(Color.brandGreen.opacity(0.5))
+                       }
+                   }
+                   #endif
             }
             .fullScreenCover(item: $selectedTask) { task in
                 SessionView(taskLabel: task.title,
                             durationMinutes: task.durationMinutes)
             }
+            #if DEBUG
+            .sheet(isPresented: $showDebug) {
+                DebugMenuView()
+            }
+            #endif
         }
     }
  

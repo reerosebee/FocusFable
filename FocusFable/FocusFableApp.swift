@@ -2,16 +2,17 @@
 //  FocusFableApp.swift
 //  FocusFable
 //
-//  Created by Riya  on 3/30/26.
-//
 
 import SwiftUI
 import SwiftData
 
 @main
 struct FocusFableApp: App {
+    // Wire in AppDelegate for orientation control
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     @State private var showSplash = true
- 
+
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -32,12 +33,10 @@ struct FocusFableApp: App {
         }
         .modelContainer(for: [
             UserProgress.self,
-            SessionRecord.self,
-            StoryChapter.self
+            SessionRecord.self
         ])
     }
 }
- 
 
 struct RootView: View {
     @Query private var progressList: [UserProgress]
@@ -53,3 +52,22 @@ struct RootView: View {
  #Preview {
     
 }
+
+import UIKit
+ 
+class AppDelegate: NSObject, UIApplicationDelegate {
+ 
+    func application(
+        _ application: UIApplication,
+        supportedInterfaceOrientationsFor window: UIWindow?
+    ) -> UIInterfaceOrientationMask {
+        // Let OrientationManager decide — portrait normally, landscape in story reader
+        return OrientationManager.shared.current
+    }
+}
+ 
+
+
+
+
+

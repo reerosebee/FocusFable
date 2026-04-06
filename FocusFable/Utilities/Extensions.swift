@@ -20,7 +20,7 @@ extension TimeInterval {
 // MARK: All brand colors
 extension Color {
         /// Mint green — the app background (matches logo background)
-        static let brandMint      = Color(hex: "#E8F5E9")
+        static let brandMint      = Color(hex: "#e7ffea")
      
         /// Deep forest green — primary text, buttons, icons
         static let brandGreen     = Color(hex: "#2E7D32")

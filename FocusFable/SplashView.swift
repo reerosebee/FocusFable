@@ -16,15 +16,10 @@ struct SplashView: View {
             Color.brandMint.ignoresSafeArea()
  
             VStack(spacing: 20) {
-                // Use your actual logo image if you have it in Assets,
-                // otherwise this quill SF Symbol approximates it
-                Image(systemName: "book.pages.fill")
-                    .font(.system(size: 72))
-                    .foregroundStyle(Color.brandGreen)
- 
-                Text("FocusFable")
-                    .font(.brandTitle)
-                    .foregroundStyle(Color.brandGreen)
+                Image("FocusFableIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 300, height: 300)
  
                 Text("Study hard. Unlock your story.")
                     .font(.brandCaption)

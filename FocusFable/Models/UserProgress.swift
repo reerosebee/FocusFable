@@ -2,8 +2,6 @@
 //  UserProgress.swift
 //  FocusFable
 //
-//  Created by Riya  on 3/30/26.
-//
 
 import Foundation
 import SwiftData
@@ -16,7 +14,7 @@ class UserProgress {
     var currentStreak: Int
     var lastStudyDate: Date?
     var unlockedChapterCount: Int
-    var focusDurationMinutes: Int   // user's preferred session length (from Settings)
+    var focusDurationMinutes: Int
     var breakDurationMinutes: Int
 
     init(
@@ -35,37 +33,48 @@ class UserProgress {
         self.breakDurationMinutes = breakDurationMinutes
     }
 
-    /// Adds points and updates the streak based on today's date.
+    /// Adds points, updates streak, and automatically unlocks chapters if threshold is crossed.
     func addPoints(_ amount: Int) {
         totalPoints += amount
 
+        // Update streak
         let today = Calendar.current.startOfDay(for: .now)
-
         if let last = lastStudyDate {
-            let lastDay = Calendar.current.startOfDay(for: last)
+            let lastDay     = Calendar.current.startOfDay(for: last)
             let daysBetween = Calendar.current.dateComponents([.day], from: lastDay, to: today).day ?? 0
-
             if daysBetween == 1 {
-                currentStreak += 1           // studied yesterday → extend streak
+                currentStreak += 1
             } else if daysBetween > 1 {
-                currentStreak = 1            // gap → reset streak
+                currentStreak = 1
             }
-            // daysBetween == 0 means already studied today, streak unchanged
         } else {
-            currentStreak = 1                // first ever session
+            currentStreak = 1
         }
-
         lastStudyDate = .now
+
+        // Unlock chapters automatically when threshold is crossed
+        checkAndUnlockChapters()
     }
 
-    /// Returns true if the user has enough points to unlock the next chapter.
+    /// Call this any time points change (e.g. from debug menu) to sync unlocks.
+    func checkAndUnlockChapters() {
+        let cost = Constants.Points.chapterUnlockCost
+        // How many chapters the user has earned based on total points
+        let earned = totalPoints / cost
+        // Cap at max chapters and only ever go up, never down
+        let newCount = min(earned, Constants.Story.maxChapters)
+        if newCount > unlockedChapterCount {
+            unlockedChapterCount = newCount
+        }
+    }
+
+    var pointsUntilNextChapter: Int {
+        let cost      = Constants.Points.chapterUnlockCost
+        let threshold = cost * (unlockedChapterCount + 1)
+        return max(0, threshold - totalPoints)
+    }
+
     var canUnlockNextChapter: Bool {
         totalPoints >= Constants.Points.chapterUnlockCost * (unlockedChapterCount + 1)
-    }
-
-    /// How many points until the next chapter unlocks.
-    var pointsUntilNextChapter: Int {
-        let threshold = Constants.Points.chapterUnlockCost * (unlockedChapterCount + 1)
-        return max(0, threshold - totalPoints)
     }
 }
