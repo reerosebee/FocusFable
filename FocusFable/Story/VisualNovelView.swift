@@ -25,24 +25,22 @@ struct VisualNovelView: View {
     private var isLastScene: Bool   { branchScenes == nil && mainIndex >= scenes.count - 1 }
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             backgroundLayer
             spriteLayer
-            VStack {
-                Spacer()
-                if isChoiceScene { choiceBox } else { dialogueBox }
-            }
+
+            // Pinned to bottom — works correctly in landscape
+            if isChoiceScene { choiceBox } else { dialogueBox }
         }
         .onTapGesture { if !isChoiceScene { handleTap() } }
         .onAppear {
-            // Lock to landscape when story reader opens
             OrientationManager.shared.lock(.landscape)
             startTyping()
         }
         .onDisappear {
-            // Restore portrait when leaving
             OrientationManager.shared.lock(.portrait)
         }
+        .statusBarHidden(true)
         .ignoresSafeArea()
     }
 
@@ -70,47 +68,53 @@ struct VisualNovelView: View {
     // MARK: - Sprites
 
     private var spriteLayer: some View {
-        HStack(alignment: .bottom) {
+        HStack(alignment: .bottom, spacing: 0) {
             if let left = currentScene.leftSprite {
                 spriteImage(named: left, isActive: isLeftSpeaking)
-                    .padding(.leading, 8)
+                    .padding(.leading, 16)
             } else {
-                Spacer().frame(width: 140)
+                Spacer().frame(width: 100)
             }
             Spacer()
             if let right = currentScene.rightSprite {
                 spriteImage(named: right, isActive: isRightSpeaking)
-                    .padding(.trailing, 8)
+                    .padding(.trailing, 16)
             } else {
-                Spacer().frame(width: 140)
+                Spacer().frame(width: 100)
             }
         }
-        .frame(maxHeight: .infinity, alignment: .bottom)
-        .padding(.bottom, 160)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        .padding(.bottom, 80)   // sits above dialogue box
         .animation(.easeInOut(duration: 0.25), value: currentScene.leftSprite)
         .animation(.easeInOut(duration: 0.25), value: currentScene.rightSprite)
         .animation(.easeInOut(duration: 0.25), value: currentScene.speakerName)
     }
 
-    /// True if the left sprite is the current speaker (or no one is speaking, like Narrator)
+    // MARK: - Active speaker detection
+
     private var isLeftSpeaking: Bool {
-        guard let left = currentScene.leftSprite else { return false }
-        // Active if speaker name matches the sprite's character prefix,
-        // or if it's a narrator line with no right sprite (both shown normally)
+        guard let left = currentScene.leftSprite else { return true }
         let speaker = currentScene.speakerName.lowercased()
+        // If no speaker or narrator, both are fully lit
         if speaker.isEmpty || speaker == "narrator" { return true }
-        // Match by checking if the sprite name starts with the speaker's first name
+        // Both sprites shown, neither is clearly matched → both lit
         let firstName = speaker.components(separatedBy: " ").first ?? speaker
+        let youNames = ["you", "del", "delphinium"]
+        if youNames.contains(firstName) {
+            return left.lowercased().hasPrefix("del")
+        }
         return left.lowercased().hasPrefix(firstName)
     }
 
     private var isRightSpeaking: Bool {
-        guard let right = currentScene.rightSprite else { return false }
+        guard let right = currentScene.rightSprite else { return true }
         let speaker = currentScene.speakerName.lowercased()
         if speaker.isEmpty || speaker == "narrator" { return true }
         let firstName = speaker.components(separatedBy: " ").first ?? speaker
-        // "You" / "Del" maps to the del sprite
-        if firstName == "you" { return right.lowercased().hasPrefix("del") }
+        let youNames = ["you", "del", "delphinium"]
+        if youNames.contains(firstName) {
+            return right.lowercased().hasPrefix("del")
+        }
         return right.lowercased().hasPrefix(firstName)
     }
 
@@ -120,7 +124,7 @@ struct VisualNovelView: View {
                 Image(named)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 220)
+                    .frame(height: 370)
             } else {
                 Circle()
                     .fill(Color.brandGreenSoft)
@@ -132,10 +136,8 @@ struct VisualNovelView: View {
                     )
             }
         }
-        // Dim inactive speaker — same effect as your slides
-        .brightness(isActive ? 0 : -0.15)
-        .saturation(isActive ? 1 : 0.6)
-        .opacity(isActive ? 1.0 : 0.7)
+        // Shade inactive sprite — colorMultiply respects transparency
+        .colorMultiply(isActive ? .white : Color(white: 0.6))
         .animation(.easeInOut(duration: 0.3), value: isActive)
     }
 
@@ -143,7 +145,6 @@ struct VisualNovelView: View {
 
     private var dialogueBox: some View {
         HStack(alignment: .bottom, spacing: 12) {
-            // Speaker tag on the left in landscape
             if !currentScene.speakerName.isEmpty {
                 Text(currentScene.speakerName)
                     .font(.brandCaption.bold())
@@ -154,7 +155,6 @@ struct VisualNovelView: View {
                     .fixedSize()
             }
 
-            // Dialogue text
             VStack(alignment: .leading, spacing: 6) {
                 Text(displayedText)
                     .font(.brandBody)
@@ -175,8 +175,8 @@ struct VisualNovelView: View {
         .padding(16)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.brandGreenSoft, lineWidth: 1))
-        .padding(.horizontal, 40)   // more horizontal padding in landscape
-        .padding(.bottom, 20)
+        .padding(.horizontal, 40)
+        .padding(.bottom, 80)
     }
 
     // MARK: - Choice box
@@ -187,7 +187,6 @@ struct VisualNovelView: View {
                 .font(.brandCaption.bold())
                 .foregroundStyle(Color.brandGreen.opacity(0.7))
 
-            // Lay choices out in a 2-column grid for landscape
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                 if let choices = currentScene.choices {
                     ForEach(choices) { choice in
@@ -212,7 +211,7 @@ struct VisualNovelView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.brandGreenSoft, lineWidth: 1))
         .padding(.horizontal, 40)
-        .padding(.bottom, 20)
+        .padding(.bottom, 40)
     }
 
     // MARK: - Typewriter
@@ -244,7 +243,6 @@ struct VisualNovelView: View {
             isTyping = false
             return
         }
-
         if let branch = branchScenes {
             if branchIndex < branch.count - 1 {
                 branchIndex += 1

@@ -102,19 +102,19 @@ struct ChapterLibrary {
                    leftSprite: Iris.surprised,
                    rightSprite: Marigold.concerned,
                    speakerName: "Unknown Girl 1",
-                   dialogue: "\u{201c}Oh! You\u{2019}re finally awake!\u{201d}"),
+                   dialogue: "\u{201c}Oh! You're finally awake!\u{201d}"),
         
         StoryScene(background: BG.hospital,
                    leftSprite: Iris.surprised,
                    rightSprite: Marigold.concerned,
                    speakerName: "Unknown Girl 2",
-                   dialogue: "\u{201c}We thought you wouldn\u{2019}t wake up ever again.\u{201d}"),
+                   dialogue: "\u{201c}We thought you wouldn't wake up ever again.\u{201d}"),
  
         StoryScene(background: BG.hospital,
                    leftSprite: Iris.talking,
                    rightSprite: Marigold.neutral,
                    speakerName: "Iris",
-                   dialogue: "\u{201c}I\u{2019}m not sure if you remember\u{2026} But I\u{2019}m Iris and here\u{2019}s Marigold.\u{201d}"),
+                   dialogue: "\u{201c}I'm not sure if you remember\u{2026} But I\u{2019}m Iris and here\u{2019}s Marigold.\u{201d}"),
  
         // Choice screen
         StoryScene(background: BG.hospital,

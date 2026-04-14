@@ -11,7 +11,7 @@ struct OnboardingView: View {
 
     @State private var step          = 0
     @State private var heroName      = ""
-    @State private var selectedGenre = StoryGenre.mystery  // default to the only available one
+    @State private var selectedGenre = StoryGenre.mystery
 
     var body: some View {
         ZStack {
@@ -25,10 +25,7 @@ struct OnboardingView: View {
                     Image("FocusFableIcon")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 100, height: 100)
-                    Text("FocusFable")
-                        .font(.brandTitle)
-                        .foregroundStyle(Color.brandGreen)
+                        .frame(width: 200, height: 200)
                     Text("Study hard.\nUnlock your story.")
                         .font(.brandBody)
                         .multilineTextAlignment(.center)

@@ -1,16 +1,12 @@
 //
-//  TaskBreakdownSwift.swift
+//  TaskBreakdownService.swift
 //  FocusFable
-//
-//  Created by Riya  on 3/30/26.
 //
 
 import Foundation
 import FoundationModels
 
 // MARK: - Structured output types
-// @Generable tells the Foundation Models framework exactly what shape to return.
-// No JSON parsing needed — Apple enforces the structure for you.
 
 @Generable
 struct StudyPlan {
@@ -20,10 +16,10 @@ struct StudyPlan {
 
 @Generable
 struct StudyStep {
-    @Guide(description: "A specific, actionable task under 50 characters. Not vague — e.g. 'Review pages 40–55' not 'Study chapter'")
+    @Guide(description: "A specific, actionable task under 50 characters. Not vague — e.g. 'Review pages 40-55' not 'Study chapter'")
     var title: String
 
-    @Guide(description: "Duration in minutes. Must be exactly the session length the user chose.")
+    @Guide(description: "Duration in minutes. Must match the session length the user chose.")
     var durationMinutes: Int
 }
 
@@ -31,17 +27,25 @@ struct StudyStep {
 
 struct TaskBreakdownService {
 
-    /// Breaks a study task into Pomodoro-sized steps using the on-device model.
-    /// Falls back to a hardcoded plan if the device doesn't support Foundation Models.
     func breakdown(task: String, sessionMinutes: Int) async throws -> [SubTask] {
 
-        // Check device support before trying
         let model = SystemLanguageModel.default
-        print("🔍 Model availability: \(model.availability)")
-        guard case .available = model.availability else {
+
+        // Log exactly what availability returns
+        print("🤖 FoundationModels availability: \(model.availability)")
+
+        switch model.availability {
+        case .available:
+            print("✅ Model is available — calling LanguageModelSession")
+            return try await runModel(task: task, sessionMinutes: sessionMinutes)
+
+        case .unavailable(let reason):
+            print("❌ Model unavailable — reason: \(reason)")
             return fallbackBreakdown(task: task, sessionMinutes: sessionMinutes)
         }
+    }
 
+    private func runModel(task: String, sessionMinutes: Int) async throws -> [SubTask] {
         let session = LanguageModelSession()
 
         let prompt = """
@@ -51,20 +55,26 @@ struct TaskBreakdownService {
         Every step's durationMinutes must be \(sessionMinutes).
         """
 
+        print("📝 Sending prompt: \(prompt)")
+
         let response = try await session.respond(
             to: prompt,
             generating: StudyPlan.self
         )
 
-        return response.content.steps.map {
+        print("📦 Raw response: \(response)")
+        print("📋 Steps count: \(response.content.steps.count)")
+
+        let tasks = response.content.steps.map {
             SubTask(title: $0.title, durationMinutes: $0.durationMinutes)
         }
+
+        print("✅ Returning \(tasks.count) tasks")
+        return tasks
     }
 
-    // MARK: - Fallback for unsupported devices
-
-    /// Returns a generic 3-step plan when on-device AI isn't available.
     private func fallbackBreakdown(task: String, sessionMinutes: Int) -> [SubTask] {
+        print("⚠️ Using fallback breakdown")
         return [
             SubTask(title: "Review your notes on: \(task)", durationMinutes: sessionMinutes),
             SubTask(title: "Practice or work through problems", durationMinutes: sessionMinutes),
