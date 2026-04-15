@@ -30,6 +30,8 @@ struct FocusFableApp: App {
                     showSplash = false
                 }
             }
+            // Force light mode — the mint/green theme only works in light mode
+            .preferredColorScheme(.light)
         }
         .modelContainer(for: [
             UserProgress.self,

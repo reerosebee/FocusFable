@@ -27,7 +27,7 @@ struct HomeView: View {
                         // MARK: Greeting + badges
                         HStack(alignment: .center) {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("Hi, \(user?.heroName ?? "Hero") 👋")
+                                Text("Hi, \(user?.heroName ?? "Hero")")
                                     .font(.brandHeading)
                                     .foregroundStyle(Color.brandGreen)
                                 Text("Ready to focus?")
@@ -42,11 +42,24 @@ struct HomeView: View {
                         }
 
                         // MARK: Task input
-                        TextField("What are you studying today?",
-                                  text: $vm.taskInput,
-                                  axis: .vertical)
-                            .lineLimit(2...3)
-                            .textFieldStyle(GreenTextFieldStyle())
+                        BrandTextField(
+                            placeholder: "What are you studying today?",
+                            text: $vm.taskInput,
+                            axis: .vertical,
+                            lineLimit: 2...3
+                        )
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") {
+                                    UIApplication.shared.sendAction(
+                                        #selector(UIResponder.resignFirstResponder),
+                                        to: nil, from: nil, for: nil)
+                                }
+                                .foregroundStyle(Color.brandGreen)
+                                .fontWeight(.semibold)
+                            }
+                        }
 
                         // MARK: Timer row — compact dropdowns
                         if let user {
@@ -93,6 +106,12 @@ struct HomeView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
+                }
+                // Tap anywhere on the background to dismiss keyboard
+                .onTapGesture {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil, from: nil, for: nil)
                 }
             }
             .navigationTitle("")

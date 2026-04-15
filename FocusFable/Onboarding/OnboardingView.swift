@@ -11,7 +11,7 @@ struct OnboardingView: View {
 
     @State private var step          = 0
     @State private var heroName      = ""
-    @State private var selectedGenre = StoryGenre.mystery
+    @State private var selectedGenre = StoryGenre.mystery  // default to the only available one
 
     var body: some View {
         ZStack {
@@ -25,7 +25,7 @@ struct OnboardingView: View {
                     Image("FocusFableIcon")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 200, height: 200)
+                        .frame(width: 300, height: 300)
                     Text("Study hard.\nUnlock your story.")
                         .font(.brandBody)
                         .multilineTextAlignment(.center)
@@ -43,9 +43,18 @@ struct OnboardingView: View {
                     Text("What's your hero's name?")
                         .font(.brandHeading)
                         .foregroundStyle(Color.brandGreen)
-                    TextField("Enter your name", text: $heroName)
-                        .textFieldStyle(GreenTextFieldStyle())
-                        .autocorrectionDisabled()
+                    ZStack(alignment: .leading) {
+                        if heroName.isEmpty {
+                            Text("Enter your name")
+                                .foregroundStyle(Color.brandGreen.opacity(0.7))
+                                .padding(.leading, 16)
+                        }
+                        TextField("", text: $heroName)
+                            .foregroundStyle(Color.brandGreen)
+                            .tint(Color.brandGreen)
+                            .textFieldStyle(GreenTextFieldStyle())
+                            .autocorrectionDisabled()
+                    }
                     Spacer()
                     Button("Next") { withAnimation { step = 2 } }
                         .buttonStyle(GreenButtonStyle())
@@ -176,6 +185,8 @@ struct GreenButtonStyle: ButtonStyle {
 struct GreenTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
+            .foregroundStyle(Color.brandGreen)
+            .tint(Color.brandGreen)
             .padding()
             .background(Color.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 12))
             .overlay(

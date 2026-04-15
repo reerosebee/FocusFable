@@ -84,7 +84,7 @@ struct VisualNovelView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-        .padding(.bottom, 80)   // sits above dialogue box
+        .padding(.bottom, 140)   // sits above dialogue box
         .animation(.easeInOut(duration: 0.25), value: currentScene.leftSprite)
         .animation(.easeInOut(duration: 0.25), value: currentScene.rightSprite)
         .animation(.easeInOut(duration: 0.25), value: currentScene.speakerName)
@@ -124,7 +124,7 @@ struct VisualNovelView: View {
                 Image(named)
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 370)
+                    .frame(height: 280)
             } else {
                 Circle()
                     .fill(Color.brandGreenSoft)
@@ -136,8 +136,10 @@ struct VisualNovelView: View {
                     )
             }
         }
-        // Shade inactive sprite — colorMultiply respects transparency
-        .colorMultiply(isActive ? .white : Color(white: 0.6))
+        // Shade inactive sprite — NO opacity change, just darken with overlay
+        .overlay(
+            Color.black.opacity(isActive ? 0 : 0.35)
+        )
         .animation(.easeInOut(duration: 0.3), value: isActive)
     }
 
@@ -173,10 +175,10 @@ struct VisualNovelView: View {
             }
         }
         .padding(16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .background(Color.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.brandGreenSoft, lineWidth: 1))
         .padding(.horizontal, 40)
-        .padding(.bottom, 80)
+        .padding(.bottom, 16)
     }
 
     // MARK: - Choice box
@@ -208,10 +210,10 @@ struct VisualNovelView: View {
             }
         }
         .padding(16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .background(Color.white.opacity(0.88), in: RoundedRectangle(cornerRadius: 16))
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.brandGreenSoft, lineWidth: 1))
         .padding(.horizontal, 40)
-        .padding(.bottom, 40)
+        .padding(.bottom, 16)
     }
 
     // MARK: - Typewriter

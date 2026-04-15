@@ -2,25 +2,21 @@
 //  HomeViewModel.swift
 //  FocusFable
 //
-//  Created by Riya  on 3/30/26.
-//
 
-import Foundation
 import SwiftUI
 
-// All possible states the breakdown UI can be in
 enum BreakdownState {
     case idle
     case loading
     case loaded([SubTask])
-    case unsupported          // device doesn't support Foundation Models
+    case unsupported  // kept for compatibility but no longer shown
     case error(String)
 }
 
 @Observable
 class HomeViewModel {
 
-    var taskInput: String      = ""
+    var taskInput: String              = ""
     var breakdownState: BreakdownState = .idle
 
     private let service = TaskBreakdownService()
@@ -43,23 +39,16 @@ class HomeViewModel {
                 task: taskInput,
                 sessionMinutes: sessionMinutes
             )
-            breakdownState = tasks.isEmpty
-                ? .error("Couldn't generate steps. Try describing your task differently.")
-                : .loaded(tasks)
+            // Service always returns tasks now — never empty
+            breakdownState = .loaded(tasks)
         } catch {
-            // Surface a readable message, not a raw Swift error
-            breakdownState = .error(readableError(error))
+            // Shouldn't reach here but just in case
+            breakdownState = .error("Try again.")
         }
     }
 
     func reset() {
         taskInput      = ""
         breakdownState = .idle
-    }
-
-    private func readableError(_ error: Error) -> String {
-        // Foundation Models throws specific error types you can check here
-        // For now, a friendly generic message covers most cases
-        return "Something went wrong. Make sure your device supports Apple Intelligence."
     }
 }

@@ -21,7 +21,7 @@ struct SplashView: View {
                     .scaledToFit()
                     .frame(width: 300, height: 300)
  
-                Text("Study hard. Unlock your story.")
+                Text("Once Upon a Study Time...")
                     .font(.brandCaption)
                     .foregroundStyle(Color.brandGreen.opacity(0.6))
             }

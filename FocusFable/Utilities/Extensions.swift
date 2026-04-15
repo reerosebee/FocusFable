@@ -2,12 +2,10 @@
 //  Extensions.swift
 //  FocusFable
 //
-//  Created by Riya  on 3/30/26.
-//
 
 import SwiftUI
 
-// MARK: Converts seconds to minutes and seconds "MM:SS"
+// MARK: - TimeInterval
 extension TimeInterval {
     var timerFormatted: String {
         let totalSeconds = Int(self)
@@ -17,47 +15,47 @@ extension TimeInterval {
     }
 }
 
-// MARK: All brand colors
+// MARK: - Brand Colors (all hardcoded — no system/dark mode dependencies)
 extension Color {
-        /// Mint green — the app background (matches logo background)
-        static let brandMint      = Color(hex: "#e7ffea")
-     
-        /// Deep forest green — primary text, buttons, icons
-        static let brandGreen     = Color(hex: "#2E7D32")
-     
-        /// Medium green — secondary elements
-        static let brandGreenMid  = Color(hex: "#4CAF50")
-     
-        /// Soft green — subtle backgrounds, badges
-        static let brandGreenSoft = Color(hex: "#C8E6C9")
-     
-        /// Warm focus background — soft amber tint for session screen
-        static let focusBackground = Color(hex: "#FFFDE7")
-     
-        /// Calm break background — mint for break screen
-        static let breakBackground = Color(hex: "#E8F5E9")
-     
-        /// Alias so existing .appAccent references keep working
-        static let appAccent = Color.brandGreen
-     
-        /// Init from a hex string
-        init(hex: String) {
-            let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-            var int: UInt64 = 0
-            Scanner(string: hex).scanHexInt64(&int)
-            let r = Double((int >> 16) & 0xFF) / 255
-            let g = Double((int >> 8)  & 0xFF) / 255
-            let b = Double(int         & 0xFF) / 255
-            self.init(red: r, green: g, blue: b)
-        }
-    }
+    /// Mint green — main app background
+    static let brandMint      = Color(hex: "#E8F5E9")
 
-    // MARK: Brand Typography
-    extension Font {
-        /// Serif display to match the logo
-        static let brandTitle   = Font.custom("Georgia", size: 32).weight(.bold)
-        static let brandHeading = Font.custom("Georgia", size: 20).weight(.semibold)
-        static let brandBody    = Font.system(size: 16, weight: .regular, design: .rounded)
-        static let brandCaption = Font.system(size: 13, weight: .regular, design: .rounded)
+    /// Deep forest green — primary text, buttons, icons
+    static let brandGreen     = Color(hex: "#2E7D32")
+
+    /// Medium green — secondary elements, play buttons
+    static let brandGreenMid  = Color(hex: "#4CAF50")
+
+    /// Soft green — badge backgrounds, card tints
+    static let brandGreenSoft = Color(hex: "#C8E6C9")
+
+    /// Warm amber — focus session background
+    static let focusBackground = Color(hex: "#FFFDE7")
+
+    /// Cool mint — break session background
+    static let breakBackground = Color(hex: "#E8F5E9")
+
+    /// White with slight transparency — card backgrounds
+    static let cardBackground  = Color(hex: "#FFFFFF").opacity(0.75)
+
+    /// Alias so .appAccent references keep working
+    static let appAccent = Color.brandGreen
+
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r = Double((int >> 16) & 0xFF) / 255
+        let g = Double((int >> 8)  & 0xFF) / 255
+        let b = Double(int         & 0xFF) / 255
+        self.init(red: r, green: g, blue: b)
     }
-     
+}
+
+// MARK: - Brand Typography
+extension Font {
+    static let brandTitle   = Font.custom("Georgia", size: 32).weight(.bold)
+    static let brandHeading = Font.custom("Georgia", size: 20).weight(.semibold)
+    static let brandBody    = Font.system(size: 16, weight: .regular, design: .rounded)
+    static let brandCaption = Font.system(size: 13, weight: .regular, design: .rounded)
+}
