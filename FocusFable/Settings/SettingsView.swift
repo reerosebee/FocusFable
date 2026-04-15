@@ -109,13 +109,11 @@ struct SettingsView: View {
                     // MARK: About
                     Section {
                         LabeledContent("Version", value: "1.0.0")
-                        LabeledContent("Built for", value: "Technovation Girls 2025")
                     } header: {
                         Text("About").foregroundStyle(Color.brandGreen.opacity(0.7))
                     }
                 }
                 .scrollContentBackground(.hidden)
-                // Force all form rows to use hardcoded light colors
                 .environment(\.colorScheme, .light)
             }
             .navigationTitle("Settings")
