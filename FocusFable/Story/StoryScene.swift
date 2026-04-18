@@ -204,43 +204,43 @@ struct ChapterLibrary {
                    speakerName: "You",
                    dialogue: "So this is J. Cipher University? I wonder what's so special about this school that I was sponsored to come here."),
  
-        StoryScene(background: BG.universityCampus,
+        StoryScene(background: BG.university,
                    leftSprite: Zinn.neutral,
                    rightSprite: nil,
                    speakerName: "You",
                    dialogue: "Who is that weirdo with a cabbage on their head?"),
  
-        StoryScene(background: BG.universityCampus,
+        StoryScene(background: BG.university,
                    leftSprite: Zinn.talking,
                    rightSprite: nil,
                    speakerName: "Zinn",
                    dialogue: "“Heya Del remember me? Or should I say del-usional!”"),
  
-        StoryScene(background: BG.universityCampus,
+        StoryScene(background: BG.university,
                    leftSprite: Zinn.neutral,
                    rightSprite: nil,
                    speakerName: "You",
                    dialogue: "“So it seems my name is actually Delphinium... I was hoping that was a joke. Who are you?”"),
  
-        StoryScene(background: BG.universityCampus,
+        StoryScene(background: BG.university,
                    leftSprite: Zinn.talking,
                    rightSprite: nil,
                    speakerName: "Zinn",
                    dialogue: "“I'm Zinn, the best locksmith in Echelon, of course... well also your bestie ;).”"),
  
-        StoryScene(background: BG.universityCampus,
+        StoryScene(background: BG.university,
                    leftSprite: Zinn.neutral,
                    rightSprite: nil,
                    speakerName: "You",
                    dialogue: "“Good to know. I'll keep you in mind if I ever lose my keys.”"),
  
-        StoryScene(background: BG.universityCampus,
+        StoryScene(background: BG.university,
                    leftSprite: Zinn.talking,
                    rightSprite: nil,
                    speakerName: "Zinn",
                    dialogue: "“Haha good one Del. Iris was right, your personality hasn't changed one bit.”"),
  
-        StoryScene(background: BG.universityCampus,
+        StoryScene(background: BG.university,
                    leftSprite: Zinn.talking,
                    rightSprite: nil,
                    speakerName: "Zinn",
@@ -250,7 +250,7 @@ struct ChapterLibrary {
     // MARK: Fallback
  
     static func placeholderScenes(chapterIndex: Int) -> [StoryScene] {
-        [StoryScene(background: BG.hospital,
+        [StoryScene(background: BG.university,
                     leftSprite: nil,
                     rightSprite: nil,
                     speakerName: "Narrator",
