@@ -33,7 +33,7 @@ class UserProgress {
         self.breakDurationMinutes = breakDurationMinutes
     }
 
-    /// Adds points, updates streak, and automatically unlocks chapters if threshold is crossed.
+    // Adds points, updates streak, and automatically unlocks chapters if threshold is crossed.
     func addPoints(_ amount: Int) {
         totalPoints += amount
 
@@ -56,7 +56,7 @@ class UserProgress {
         checkAndUnlockChapters()
     }
 
-    /// Call this any time points change (e.g. from debug menu) to sync unlocks.
+    // Call this any time points change (from debug menu) to sync unlocks.
     func checkAndUnlockChapters() {
         let cost = Constants.Points.chapterUnlockCost
         // How many chapters the user has earned based on total points

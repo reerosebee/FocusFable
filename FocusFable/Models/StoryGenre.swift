@@ -26,7 +26,7 @@ enum StoryGenre: String, Codable, CaseIterable {
         }
     }
 
-    /// Only mystery is available right now
+    //Only mystery is available right now
     var isAvailable: Bool {
         switch self {
         case .mystery: return true

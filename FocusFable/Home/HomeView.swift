@@ -107,7 +107,6 @@ struct HomeView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
                 }
-                // Tap anywhere on the background to dismiss keyboard
                 .onTapGesture {
                     UIApplication.shared.sendAction(
                         #selector(UIResponder.resignFirstResponder),

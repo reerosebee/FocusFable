@@ -5,7 +5,6 @@
 
 import SwiftUI
 
-/// A styled text field with brand green text and placeholder.
 struct BrandTextField: View {
     let placeholder: String
     @Binding var text: String
@@ -23,7 +22,6 @@ struct BrandTextField: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.brandGreen.opacity(0.3), lineWidth: 1)
             )
-            // Overlay a custom placeholder since .placeholder modifier isn't available
             .overlay(alignment: .leading) {
                 if text.isEmpty {
                     Text(placeholder)

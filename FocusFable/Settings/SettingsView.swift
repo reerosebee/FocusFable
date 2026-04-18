@@ -23,101 +23,107 @@ struct SettingsView: View {
         NavigationStack {
             ZStack {
                 Color.brandMint.ignoresSafeArea()
-
-                Form {
-
-                    // MARK: Profile
-                    Section {
-                        HStack {
-                            Text("Hero name")
-                                .foregroundStyle(Color.brandGreen)
-                            Spacer()
-                            TextField("Your name", text: $editedName)
-                                .multilineTextAlignment(.trailing)
-                                .foregroundStyle(Color.brandGreen)
-                                .onSubmit { saveName() }
-                        }
-
-                        HStack {
-                            Text("Story world")
-                                .foregroundStyle(Color.brandGreen)
-                            Spacer()
-                            Menu {
-                                ForEach(StoryGenre.allCases, id: \.self) { genre in
-                                    Button {
-                                        if genre != editedGenre && genre.isAvailable {
-                                            editedGenre    = genre
-                                            showResetAlert = true
+                VStack(spacing: 10){
+                    Text("Settings")
+                        .font(.brandTitle)
+                        .foregroundStyle(Color.brandGreen)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 25)
+                        .padding(.top, 45)
+                        .background(Color.brandMint)
+                    Form {
+                        
+                        // MARK: Profile
+                        Section {
+                            HStack {
+                                Text("Hero name")
+                                    .foregroundStyle(Color.brandGreen)
+                                Spacer()
+                                TextField("Your name", text: $editedName)
+                                    .multilineTextAlignment(.trailing)
+                                    .foregroundStyle(Color.brandGreen)
+                                    .onSubmit { saveName() }
+                            }
+                            
+                            HStack {
+                                Text("Story world")
+                                    .foregroundStyle(Color.brandGreen)
+                                Spacer()
+                                Menu {
+                                    ForEach(StoryGenre.allCases, id: \.self) { genre in
+                                        Button {
+                                            if genre != editedGenre && genre.isAvailable {
+                                                editedGenre    = genre
+                                                showResetAlert = true
+                                            }
+                                        } label: {
+                                            Label(
+                                                genre.isAvailable ? genre.rawValue : "\(genre.rawValue) (coming soon)",
+                                                systemImage: genre.isAvailable ? genreIcon(genre) : "lock.fill"
+                                            )
                                         }
-                                    } label: {
-                                        Label(
-                                            genre.isAvailable ? genre.rawValue : "\(genre.rawValue) (coming soon)",
-                                            systemImage: genre.isAvailable ? genreIcon(genre) : "lock.fill"
-                                        )
+                                        .disabled(!genre.isAvailable)
                                     }
-                                    .disabled(!genre.isAvailable)
+                                } label: {
+                                    HStack(spacing: 6) {
+                                        Text(editedGenre.emoji)
+                                        Text(editedGenre.rawValue)
+                                            .foregroundStyle(Color.brandGreen)
+                                        Image(systemName: "chevron.up.chevron.down")
+                                            .font(.caption2)
+                                            .foregroundStyle(Color.brandGreen.opacity(0.5))
+                                    }
                                 }
-                            } label: {
-                                HStack(spacing: 6) {
-                                    Text(editedGenre.emoji)
-                                    Text(editedGenre.rawValue)
-                                        .foregroundStyle(Color.brandGreen)
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .font(.caption2)
-                                        .foregroundStyle(Color.brandGreen.opacity(0.5))
+                            }
+                        } header: {
+                            Text("Profile").foregroundStyle(Color.brandGreen.opacity(0.7))
+                        }
+                        
+                        // MARK: Timer
+                        Section {
+                            if let user {
+                                Picker("Focus duration", selection: Binding(
+                                    get: { user.focusDurationMinutes },
+                                    set: { user.focusDurationMinutes = $0 }
+                                )) {
+                                    ForEach(focusOptions, id: \.self) { Text("\($0) min").tag($0) }
                                 }
+                                .foregroundStyle(Color.brandGreen)
+                                
+                                Picker("Break duration", selection: Binding(
+                                    get: { user.breakDurationMinutes },
+                                    set: { user.breakDurationMinutes = $0 }
+                                )) {
+                                    ForEach(breakOptions, id: \.self) { Text("\($0) min").tag($0) }
+                                }
+                                .foregroundStyle(Color.brandGreen)
                             }
+                        } header: {
+                            Text("Session defaults").foregroundStyle(Color.brandGreen.opacity(0.7))
                         }
-                    } header: {
-                        Text("Profile").foregroundStyle(Color.brandGreen.opacity(0.7))
-                    }
-
-                    // MARK: Timer
-                    Section {
-                        if let user {
-                            Picker("Focus duration", selection: Binding(
-                                get: { user.focusDurationMinutes },
-                                set: { user.focusDurationMinutes = $0 }
-                            )) {
-                                ForEach(focusOptions, id: \.self) { Text("\($0) min").tag($0) }
+                        
+                        // MARK: Stats
+                        Section {
+                            if let user {
+                                LabeledContent("Total points", value: "\(user.totalPoints)")
+                                LabeledContent("Current streak", value: "\(user.currentStreak) days")
+                                LabeledContent("Chapters unlocked", value: "\(user.unlockedChapterCount)")
                             }
-                            .foregroundStyle(Color.brandGreen)
-
-                            Picker("Break duration", selection: Binding(
-                                get: { user.breakDurationMinutes },
-                                set: { user.breakDurationMinutes = $0 }
-                            )) {
-                                ForEach(breakOptions, id: \.self) { Text("\($0) min").tag($0) }
-                            }
-                            .foregroundStyle(Color.brandGreen)
+                        } header: {
+                            Text("Stats").foregroundStyle(Color.brandGreen.opacity(0.7))
                         }
-                    } header: {
-                        Text("Session defaults").foregroundStyle(Color.brandGreen.opacity(0.7))
-                    }
-
-                    // MARK: Stats
-                    Section {
-                        if let user {
-                            LabeledContent("Total points", value: "\(user.totalPoints)")
-                            LabeledContent("Current streak", value: "\(user.currentStreak) days")
-                            LabeledContent("Chapters unlocked", value: "\(user.unlockedChapterCount)")
+                        
+                        // MARK: About
+                        Section {
+                            LabeledContent("Version", value: "1.0.0")
+                        } header: {
+                            Text("About").foregroundStyle(Color.brandGreen.opacity(0.7))
                         }
-                    } header: {
-                        Text("Stats").foregroundStyle(Color.brandGreen.opacity(0.7))
                     }
-
-                    // MARK: About
-                    Section {
-                        LabeledContent("Version", value: "1.0.0")
-                    } header: {
-                        Text("About").foregroundStyle(Color.brandGreen.opacity(0.7))
-                    }
+                    .scrollContentBackground(.hidden)
+                    .environment(\.colorScheme, .light)
                 }
-                .scrollContentBackground(.hidden)
-                .environment(\.colorScheme, .light)
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.large)
             .onAppear { loadCurrentValues() }
             .onDisappear { saveName() }
             .alert("Change story world?", isPresented: $showResetAlert) {
@@ -161,4 +167,8 @@ struct SettingsView: View {
         case .sciFi:   return "airplane"
         }
     }
+}
+
+#Preview{
+    SettingsView()
 }

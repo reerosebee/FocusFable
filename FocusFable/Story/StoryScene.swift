@@ -12,7 +12,7 @@ import Foundation
 struct StoryScene: Identifiable {
     let id = UUID()
     let background: String
-    let leftSprite: String?      // full asset name including pose e.g. "iris_surprised"
+    let leftSprite: String?
     let rightSprite: String?
     let speakerName: String
     let dialogue: String
@@ -26,19 +26,6 @@ struct StoryChoice: Identifiable {
 }
 
 // MARK: - Sprite pose constants
-//
-// Naming convention: charactername_pose
-// Each string must exactly match an image set name in Assets.xcassets
-//
-// HOW TO ADD YOUR SPRITES:
-// 1. Export each pose from your slides as a PNG with transparent background
-// 2. In Xcode, open Assets.xcassets
-// 3. Create a New Image Set for each pose
-// 4. Name it exactly as listed below (e.g. "iris_neutral")
-// 5. Drag your PNG into the 1x, 2x, or 3x slot
-//
-// You can add as many poses per character as you have art for.
-// If a pose asset isn't added yet, the code falls back to a colored circle placeholder.
 
 private enum Iris {
     static let neutral    = "iris_neutral"
@@ -189,7 +176,6 @@ struct ChapterLibrary {
  
     // MARK: Chapter 1 — J. Cipher University
     // Time skip, arriving at university, meeting Zinn.
- 
     static let chapter1: [StoryScene] = [
  
         StoryScene(background: BG.transition,
@@ -248,7 +234,6 @@ struct ChapterLibrary {
     ]
  
     // MARK: Fallback
- 
     static func placeholderScenes(chapterIndex: Int) -> [StoryScene] {
         [StoryScene(background: BG.university,
                     leftSprite: nil,

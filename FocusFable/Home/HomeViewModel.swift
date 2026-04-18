@@ -9,7 +9,7 @@ enum BreakdownState {
     case idle
     case loading
     case loaded([SubTask])
-    case unsupported  // kept for compatibility but no longer shown
+    case unsupported
     case error(String)
 }
 
@@ -33,16 +33,13 @@ class HomeViewModel {
     func breakdownTask(sessionMinutes: Int) async {
         guard canBreakdown else { return }
         breakdownState = .loading
-
         do {
             let tasks = try await service.breakdown(
                 task: taskInput,
                 sessionMinutes: sessionMinutes
             )
-            // Service always returns tasks now — never empty
             breakdownState = .loaded(tasks)
         } catch {
-            // Shouldn't reach here but just in case
             breakdownState = .error("Try again.")
         }
     }

@@ -31,14 +31,6 @@ enum Constants {
         static let pausePenaltyAfter    = 30.0
     }
 
-    enum API {
-        static var claudeKey: String {
-            Bundle.main.infoDictionary?["CLAUDE_API_KEY"] as? String ?? ""
-        }
-        static let endpoint = "https://api.anthropic.com/v1/messages"
-        static let model    = "claude-sonnet-4-20250514"
-    }
-
     enum Story {
         static let wordsPerChapter  = 200
         static let maxChapters      = 20

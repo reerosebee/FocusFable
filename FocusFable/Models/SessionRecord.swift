@@ -30,7 +30,6 @@ class SessionRecord {
         self.taskLabel     = taskLabel
     }
 
-    /// Human-readable duration, e.g. "23 min"
     var durationLabel: String {
         let minutes = Int(focusDuration / 60)
         return "\(minutes) min"

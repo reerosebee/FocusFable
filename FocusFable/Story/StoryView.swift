@@ -18,24 +18,31 @@ struct StoryView: View {
         NavigationStack {
             ZStack {
                 Color.brandMint.ignoresSafeArea()
- 
-                ScrollView {
-                    VStack(spacing: 20) {
- 
-                        if let user {
-                            progressCard(user: user)
+                VStack(spacing: 0) {
+                    Text("Your Story")
+                        .font(.brandTitle)
+                        .foregroundStyle(Color.brandGreen)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                        .padding(.top, 45)
+                        .background(Color.brandMint)
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            
+                            if let user {
+                                progressCard(user: user)
+                            }
+                            
+                            if (user?.unlockedChapterCount ?? 0) == 0 {
+                                emptyState
+                            } else {
+                                chapterList
+                            }
                         }
- 
-                        if (user?.unlockedChapterCount ?? 0) == 0 {
-                            emptyState
-                        } else {
-                            chapterList
-                        }
+                        .padding()
                     }
-                    .padding()
                 }
             }
-            .navigationTitle("Your Story")
             .fullScreenCover(item: $selectedChapterIndex) { index in
                 if let user {
                     let scenes = ChapterLibrary.scenes(for: index, genre: user.genre)

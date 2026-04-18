@@ -15,30 +15,30 @@ extension TimeInterval {
     }
 }
 
-// MARK: - Brand Colors (all hardcoded — no system/dark mode dependencies)
+// MARK: - Brand Colors (all hardcoded: no system/dark mode dependencies)
 extension Color {
-    /// Mint green — main app background
-    static let brandMint      = Color(hex: "#E8F5E9")
+    /// Mint green: main app background
+    static let brandMint      = Color(hex: "#E5FFE7")
 
-    /// Deep forest green — primary text, buttons, icons
+    /// Deep forest green: primary text, buttons, icons
     static let brandGreen     = Color(hex: "#2E7D32")
 
-    /// Medium green — secondary elements, play buttons
+    /// Medium green: secondary elements, play buttons
     static let brandGreenMid  = Color(hex: "#4CAF50")
 
-    /// Soft green — badge backgrounds, card tints
+    /// Soft green: badge backgrounds, card tints
     static let brandGreenSoft = Color(hex: "#C8E6C9")
 
-    /// Warm amber — focus session background
+    /// Warm amber: focus session background
     static let focusBackground = Color(hex: "#FFFDE7")
 
-    /// Cool mint — break session background
+    /// Cool mint: break session background
     static let breakBackground = Color(hex: "#E8F5E9")
 
-    /// White with slight transparency — card backgrounds
+    /// White with slight transparency: card backgrounds
     static let cardBackground  = Color(hex: "#FFFFFF").opacity(0.75)
 
-    /// Alias so .appAccent references keep working
+    /// Alias so .appAccent references keep working (since I used appAccent before)
     static let appAccent = Color.brandGreen
 
     init(hex: String) {
