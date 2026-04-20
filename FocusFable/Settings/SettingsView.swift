@@ -156,8 +156,6 @@ struct SettingsView: View {
         guard let user else { return }
         user.genre                = editedGenre
         user.unlockedChapterCount = 0
-        // No SwiftData chapter records to delete anymore —
-        // chapters are hardcoded in ChapterLibrary
     }
 
     private func genreIcon(_ genre: StoryGenre) -> String {

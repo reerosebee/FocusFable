@@ -27,20 +27,14 @@ struct TaskBreakdownService {
 
     func breakdown(task: String, sessionMinutes: Int) async throws -> [SubTask] {
         let model = SystemLanguageModel.default
-        print("🤖 availability: \(model.availability)")
 
         if case .available = model.availability {
-            print("✅ Model available — calling AI")
             do {
-                let result = try await runModel(task: task, sessionMinutes: sessionMinutes)
-                print("✅ AI returned \(result.count) steps")
-                return result
+                return try await runModel(task: task, sessionMinutes: sessionMinutes)
             } catch {
-                print("⚠️ AI error, using smart fallback: \(error)")
                 return smartFallback(task: task, sessionMinutes: sessionMinutes)
             }
         } else {
-            print("❌ Model not available — using smart fallback")
             return smartFallback(task: task, sessionMinutes: sessionMinutes)
         }
     }

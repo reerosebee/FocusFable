@@ -7,9 +7,6 @@ import UIKit
 import SwiftUI
 
 /// Manages per-screen orientation locking.
-/// Usage: call OrientationManager.lock(.landscape) before showing VisualNovelView,
-/// and OrientationManager.lock(.portrait) when dismissing it.
-
 final class OrientationManager {
 
     static let shared = OrientationManager()

@@ -2,8 +2,6 @@
 //  SubTask.swift
 //  FocusFable
 //
-//  Created by Riya  on 3/30/26.
-//
 
 import Foundation
 
@@ -14,7 +12,7 @@ struct SubTask: Identifiable {
     let durationMinutes: Int
     var isCompleted: Bool = false
 
-    // Full label shown in the session view, e.g. "Review chapter 8 notes (25 min)"
+    // Full label shown in the session view, like "Review chapter 8 notes (25 min)"
     var sessionLabel: String {
         "\(title) · \(durationMinutes) min"
     }

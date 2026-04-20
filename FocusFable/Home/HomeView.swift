@@ -40,6 +40,7 @@ struct HomeView: View {
                                 PointsBadge(points: user?.totalPoints ?? 0)
                             }
                         }
+                        .padding(.top, 40)
 
                         // MARK: Task input
                         BrandTextField(
@@ -123,22 +124,11 @@ struct HomeView: View {
                             .foregroundStyle(Color.brandGreen.opacity(0.6))
                     }
                 }
-                #if DEBUG
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { showDebug = true } label: {
-                        Image(systemName: "wrench.fill")
-                            .foregroundStyle(Color.brandGreen.opacity(0.4))
-                    }
-                }
-                #endif
             }
             .fullScreenCover(item: $selectedTask) { task in
                 SessionView(taskLabel: task.title,
                             durationMinutes: task.durationMinutes)
             }
-            #if DEBUG
-            .sheet(isPresented: $showDebug) { DebugMenuView() }
-            #endif
         }
     }
 
@@ -227,10 +217,6 @@ struct HomeView: View {
                 .multilineTextAlignment(.center)
         }
     }
-
-    #if DEBUG
-    @State private var showDebug = false
-    #endif
 }
 
 // MARK: - SubTaskListView
